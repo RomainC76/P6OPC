@@ -10,9 +10,6 @@ const path = require('path');
 const bodyparser = require('body-parser');
 
 
-//création de l'application
-const app = express();
-
 //on importe le routeur des produits
 const productRoutes = require('./routes/product');
 
@@ -28,6 +25,9 @@ mongoose.connect('mongodb+srv://serialcoder:aBQjHHvMgRei93y@picante.kobnz2f.mong
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
+//création de l'application
+const app = express();
+app.use(express.json());
 
 //Gestion des erreurs CORS
 app.use((req, res, next) => {
