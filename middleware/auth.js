@@ -2,9 +2,9 @@
 const jwt = require('jsonwebtoken');
 
 // export de la fonction qui décode le token
-module.exports = (req,res,next) => {
+module.exports = (req, res, next) => {
     //on récupère le token
-    try{
+    try {
         const token = req.headers.authorization.split(' ')[1];
         //on décode le token
         const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
@@ -15,7 +15,7 @@ module.exports = (req,res,next) => {
             userId: userId
         };
         next();
-    } catch(error) {
-        res.Status(401).json({error})
+    } catch (error) {
+        res.status(401).json({ error })
     };
 };
