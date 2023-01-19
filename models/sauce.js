@@ -1,8 +1,8 @@
 //imort de mongoose
-const mongoose = require('mongoose');
+const mongoose = require("mongoose"); // Appelle Mongoose
+const mongooseUniqueValidator = require("mongoose-unique-validator"); // Rend les champs uniques si demandé
 
-//on crée le schéma de données
-const sauceSchema = mongoose.Schema({
+const sauceShema = mongoose.Schema({
     userId: { type: String, required: true },
     name: { type: String, required: true },
     manufacturer: { type: String, required: true },
@@ -12,9 +12,10 @@ const sauceSchema = mongoose.Schema({
     heat: { type: Number, required: true },
     likes: { type: Number, required: true },
     dislikes: { type: Number, required: true },
-    usersLiked: { type: [String], required: false },
-    usersDisliked: { type: [String], required: false }
+    usersLiked: { type: [String] },
+    usersDisliked: { type: [String] },
 });
 
-//on exporte le modèle
-module.exports = mongoose.model('sauce', sauceSchema)
+sauceShema.plugin(mongooseUniqueValidator);
+
+module.exports = mongoose.model("Sauce", sauceShema);

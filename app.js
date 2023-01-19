@@ -1,52 +1,69 @@
-// import de Express
-const express = require('express');
+const express = require("express"); // Utilisation d'Express
 
-//import de mongoose
-const mongoose = require('mongoose');
+const dotenv = require("dotenv").config(); // Gère les variables d'environnement (planque les données sensibles)
+const path = require("path"); // Manipule les chemins de fichier
 
-//import du chemin images
-const path = require('path');
+const helmet = require("helmet"); // Sécurité : Configure les headers de réponse
+const cors = require("cors"); // Sécurité : gère les accès serveur depuis des origines
+const morgan = require("morgan"); // Log les requêtes HTTP du serveur
+const mongooseExpressErrorHandler = require("mongoose-express-error-handler"); // Remonte les erreurs Mongoose et les gère de manière centralisée
 
-const bodyparser = require('body-parser');
+const mongoose = require("mongoose"); // Utilisation de Mongoose
 
+const userRoutes = require("./routes/user"); // Chemin user
+const sauceRoutes = require("./routes/sauce"); // Chemin sauce
 
-//on importe le routeur des produits
-const productRoutes = require('./routes/product');
+const app = express(); // Lance Express sur Node.JS
 
-//on importe le routeur pour les utilisateurs
-const userRoutes = require('./routes/user');
-
-//Connection à la base de données
-mongoose.connect('mongodb+srv://serialcoder:aBQjHHvMgRei93y@picante.kobnz2f.mongodb.net/?retryWrites=true&w=majority',
-  {
+//  Configure l'app à la base de données Mongoose
+mongoose.set("strictQuery", true);
+mongoose
+  .connect(`${process.env.MONGODBSRV}`, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   })
-  .then(() => console.log('Connexion à MongoDB réussie !'))
-  .catch(() => console.log('Connexion à MongoDB échouée !'));
+  .then(() => console.log("Connexion à MongoDB réussie !"))
+  .catch(() => console.log("Connexion à MongoDB échouée !"));
 
-//création de l'application
-const app = express();
-app.use(express.json());
+app.use(express.json()); // Permet de gérer les données requête envoyées sous forme de JSON : parse les données et les ajoute à l'objet req.body
 
-//Gestion des erreurs CORS
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  next();
-});
+// Définit les entêtes de manière basique : inutile si Helmet est configuré
+// app.use((req, res, next) => {
+//     res.setHeader("Access-Control-Allow-Origin", "*");
+//     res.setHeader(
+//         "Access-Control-Allow-Headers",
+//         "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
+//     );
+//     res.setHeader(
+//         "Access-Control-Allow-Methods",
+//         "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+//     );
+//     next();
+// });
 
-//on accède au corps des requêtes
-//on intercepte toutes les requêtes au format JSON
-// et on les met à disposition dans req.body
-app.use(bodyparser.json());
+// Ecoute les évenements de la BD et remonte les erreurs
+const db = mongoose.connection;
+db.on("error", (error) => console.error(error));
 
-app.use('/api/sauces', productRoutes);
-app.use('/api/auth', userRoutes);
-app.use('/images', express.static(path.join(__dirname, 'images')));
+// Définit les CORS sur une requête provenant du même site
+app.use(helmet({ crossOriginResourcePolicy: { policy: "same-site" } }));
 
+// Lance MongooseExpressErrorHandler
+app.use(mongooseExpressErrorHandler);
 
+// Définit l'utilisation de morgan avec un format de journalisation de manière détaillée
+app.use(morgan("dev"));
 
-//on exporte l'application
+// Utilise CORS fourni par Express
+app.use(cors());
+
+// Définit le chemin images
+app.use("/images", express.static(path.join(__dirname, "images")));
+
+// Impose l'authentification sur la route utilisateur en indiquant à l'app la route à suivre pour les requêtes /api/auth
+app.use("/api/auth", userRoutes);
+
+// Indique à l'app la route à suivre pour les requêtes /api/sauces
+app.use("/api/sauces", sauceRoutes); //
+
 module.exports = app;
