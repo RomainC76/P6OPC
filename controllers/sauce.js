@@ -38,7 +38,7 @@ exports.modifySauce = (req, res, next) => {
             imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename
                 }`,
         }
-        : { ...req.body };
+        : { ...JSON.parse(req.body.sauce) };
 
     delete sauceObject._userId;
     Sauce.findOne({ _id: req.params.id }) // Atteint la sauce, la modifie et l'enregistre si l'utilisateur en a le droit
