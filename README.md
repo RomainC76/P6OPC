@@ -11,5 +11,8 @@ Se référer au fichier .env.template pour la création du fichier .env et régl
 
 Format de mot de passe minimum : 8 lettres, 1 majuscule, 1 minuscule, 2 chiffres.
 
+Création du fichier images lors de la création d'une sauce .
+N'oubliez pas de supprimer le fichier images pour upload sur Github.
+
 Frontend
 Lien vers le repo : https://github.com/OpenClassrooms-Student-Center/Web-Developer-P6
